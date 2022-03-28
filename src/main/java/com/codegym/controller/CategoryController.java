@@ -87,13 +87,16 @@ public class CategoryController {
     }
 
     @GetMapping("categories/view/{id}")
-    public ModelAndView showAllProductByCategory(@PathVariable Long id, @PageableDefault (value = 5)Pageable pageable) {
+    public ModelAndView showAllProductByCategory(@PathVariable Long id, @PageableDefault (value = 20) Pageable pageable) {
         Optional<Category> categoryOptional = categoryService.findById(id);
         if (!categoryOptional.isPresent()) {
             return new ModelAndView("/error-404");
         }
+        ModelAndView modelAndView = new ModelAndView("/category/view");
         Category category = categoryOptional.get();
-        Iterable<Product> products = productService.findAllByCategory(category, pageable);
-        return new ModelAndView("/category/view", "products", products);
+        Page<Product> products = productService.findAllByCategory(category, pageable);
+        modelAndView.addObject("products", products);
+        modelAndView.addObject("id", id);
+        return modelAndView;
     }
 }
