@@ -7,6 +7,9 @@ import com.codegym.service.category.ICategoryService;
 import com.codegym.service.product.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
@@ -29,11 +32,12 @@ public class ProductController {
     private String uploadPath;
 
     @GetMapping("/products/list")
-    public ModelAndView showListProduct(@RequestParam (name = "q") Optional<String> q){
+    public ModelAndView showListProduct(@RequestParam (name = "q") Optional<String> q, @PageableDefault (value = 5) Pageable pageable){
         ModelAndView modelAndView = new ModelAndView("/product/list");
-        Iterable<Product> products = productService.findAll();
+        Page<Product> products = productService.findAll(pageable);
         if (q.isPresent()){
-            products = productService.findProductByNameContaining(q.get());
+            modelAndView.addObject("q", q.get());
+            products = productService.findProductByNameContaining(q.get(), pageable);
         }
         Iterable<Category> categories = categoryService.findAll();
         modelAndView.addObject("products", products);
@@ -129,16 +133,24 @@ public class ProductController {
         return new ModelAndView("redirect:/products/list");
     }
 
-//    @GetMapping("/products/{id}")
-//    public ModelAndView showDetailProduct(@PathVariable Long id) {
-//        Optional<Product> productOptional = productService.findById(id);
-//        if (!productOptional.isPresent()) {
-//            return new ModelAndView("/error-404");
-//        }
-//        ModelAndView modelAndView = new ModelAndView("/product/view");
-//        modelAndView.addObject("product", productOptional.get());
-//        Iterable<Category> categories = categoryService.findAll();
-//        modelAndView.addObject("categories", categories);
-//        return new ModelAndView();
-//    }
+    @GetMapping("/products/{id}")
+    public ModelAndView showDetailProduct(@PathVariable Long id) {
+        Optional<Product> productOptional = productService.findById(id);
+        if (!productOptional.isPresent()) {
+            return new ModelAndView("/error-404");
+        }
+        ModelAndView modelAndView = new ModelAndView("/product/detail");
+        modelAndView.addObject("product", productOptional.get());
+        Iterable<Category> categories = categoryService.findAll();
+        modelAndView.addObject("categories", categories);
+        return modelAndView;
+    }
+
+    @GetMapping("/products/search")
+    public ModelAndView showListProductBetweenPrice(@RequestParam (name = "min") Double min, @RequestParam (name = "max") Double max) {
+        Iterable<Product> products = productService.searchProductBetweenPrice(min, max);
+        ModelAndView modelAndView = new ModelAndView("/product/list");
+        modelAndView.addObject("products", products);
+        return modelAndView;
+    }
 }

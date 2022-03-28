@@ -12,6 +12,11 @@
     <input type="text" name="q" placeholder="Search">
     <input type="submit" value="Search">
 </form>
+<form action="/products/search" method="get">
+    <input type="number" name = "min" placeholder="input Min value">
+    <input type="number" name = "max" placeholder="input Max value">
+    <input type="submit" value="Search price">
+</form>
 <table>
     <tr>
         <td>Id</td>
@@ -33,5 +38,15 @@
         <td><a th:href="@{/products/delete/__${product.id}__}">Delete</a></td>
     </tr>
 </table>
+<div th:if="${q == null}">
+    <a th:href="@{'/products/list'(page=${products.number - 1})}" th:if="${products.hasPrevious()}">Previous</a>
+    <span th:text="${products.number + 1}"></span>/<span th:text="${products.totalPages}"></span>
+    <a th:href="@{'/products/list'(page=${products.number + 1})}" th:if="${products.hasNext()}">Next</a>
+</div>
+<div th:if="${q != null}">
+    <a th:href="@{'/products/list'(page=${products.number - 1}, q=${q})}" th:if="${products.hasPrevious()}">Previous</a>
+    <span th:text="${products.number + 1}"></span>/<span th:text="${products.totalPages}"></span>
+    <a th:href="@{'/products/list'(page=${products.number + 1}, q=${q})}" th:if="${products.hasNext()}">Next</a>
+</div>
 </body>
 </html>

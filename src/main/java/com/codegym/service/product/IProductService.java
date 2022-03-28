@@ -3,11 +3,16 @@ package com.codegym.service.product;
 import com.codegym.model.Category;
 import com.codegym.model.Product;
 import com.codegym.service.IGeneralService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
 
 public interface IProductService extends IGeneralService<Product> {
-    Iterable<Product> findProductByNameContaining(String name);
+    Page<Product> findProductByNameContaining(String name, Pageable pageable);
 
-    Iterable<Product> findAllByCategory(Category category);
+    Page<Product> findAllByCategory(Category category, Pageable pageable);
+
+    Page<Product> findAll(Pageable pageable);
+
+    Iterable<Product> searchProductBetweenPrice(Double min, Double max);
 }

@@ -5,6 +5,9 @@ import com.codegym.model.Product;
 import com.codegym.service.category.ICategoryService;
 import com.codegym.service.product.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,9 +27,9 @@ public class CategoryController {
     private ICategoryService categoryService;
 
     @GetMapping("/categories/list")
-    public ModelAndView showListCategory(){
+    public ModelAndView showListCategory(@PageableDefault (value = 5) Pageable pageable){
         ModelAndView modelAndView = new ModelAndView("/category/list");
-        Iterable<Category> categories = categoryService.findAll();
+        Page<Category> categories = categoryService.findAll(pageable);
         modelAndView.addObject("categories", categories);
         return modelAndView;
     }
@@ -79,18 +82,18 @@ public class CategoryController {
         if (!categoryOptional.isPresent()) {
             return new ModelAndView("/error-404");
         }
-        categoryService.remove(id);
+        categoryService.deleteCategoryAndProductByProcedure(id);
         return new ModelAndView("redirect:/categories/list");
     }
 
     @GetMapping("categories/view/{id}")
-    public ModelAndView showAllProductByCategory(@PathVariable Long id) {
+    public ModelAndView showAllProductByCategory(@PathVariable Long id, @PageableDefault (value = 5)Pageable pageable) {
         Optional<Category> categoryOptional = categoryService.findById(id);
         if (!categoryOptional.isPresent()) {
             return new ModelAndView("/error-404");
         }
         Category category = categoryOptional.get();
-        Iterable<Product> products = productService.findAllByCategory(category);
+        Iterable<Product> products = productService.findAllByCategory(category, pageable);
         return new ModelAndView("/category/view", "products", products);
     }
 }

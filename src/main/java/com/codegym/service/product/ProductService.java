@@ -4,6 +4,8 @@ import com.codegym.model.Category;
 import com.codegym.model.Product;
 import com.codegym.repository.IProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -34,12 +36,22 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public Iterable<Product> findProductByNameContaining(String name) {
-        return productRepository.findProductByNameContaining(name);
+    public Page<Product> findProductByNameContaining(String name, Pageable pageable) {
+        return productRepository.findProductByNameContaining(name, pageable);
     }
 
     @Override
-    public Iterable<Product> findAllByCategory(Category category) {
-        return productRepository.findAllByCategory(category);
+    public Page<Product> findAllByCategory(Category category, Pageable pageable) {
+        return productRepository.findAllByCategory(category, pageable);
+    }
+
+    @Override
+    public Page<Product> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    @Override
+    public Iterable<Product> searchProductBetweenPrice(Double min, Double max) {
+        return productRepository.searchProductBetweenPrice(min, max);
     }
 }
