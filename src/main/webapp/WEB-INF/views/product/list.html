@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>List product</h1>
+<a th:href="@{/categories/list}">List category</a><br>
+<a th:href="@{/products/create}">Create new product</a>
+<form th:action="@{/products/list}" method="get">
+    <input type="text" name="q" placeholder="Search">
+    <input type="submit" value="Search">
+</form>
+<table>
+    <tr>
+        <td>Id</td>
+        <td>Name</td>
+        <td>Price</td>
+        <td>Description</td>
+        <td>Image</td>
+        <td>Category</td>
+        <td colspan="2">Action</td>
+    </tr>
+    <tr th:each="product : ${products}">
+        <td th:text="${product.id}"></td>
+        <td><a th:href="@{/products/__${product.id}__}" th:text="${product.name}"></a></td>
+        <td th:text="${product.price}"></td>
+        <td th:text="${product.description}"></td>
+        <td><img th:src="@{/image/__${product.image}__}" alt="" height="100"></td>
+        <td th:if="${product.category}" th:text="${product.category.name}"></td>
+        <td><a th:href="@{/products/edit/__${product.id}__}">Edit</a></td>
+        <td><a th:href="@{/products/delete/__${product.id}__}">Delete</a></td>
+    </tr>
+</table>
+</body>
+</html>
