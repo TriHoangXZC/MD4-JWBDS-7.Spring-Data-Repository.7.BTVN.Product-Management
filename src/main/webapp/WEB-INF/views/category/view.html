@@ -25,5 +25,10 @@
         <td th:if="${product.category}" th:text="${product.category.name}"></td>
     </tr>
 </table>
+<div>
+    <a th:href="@{'/categories/view/'+${id}(page=${products.number - 1})}" th:if="${products.hasPrevious()}">Previous</a>
+    <span th:text="${products.number + 1}"></span>/<span th:text="${products.totalPages}"></span>
+    <a th:href="@{'/categories/view/'+${id}(page=${products.number + 1})}" th:if="${products.hasNext()}">Next</a>
+</div>
 </body>
 </html>
