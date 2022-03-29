@@ -2,14 +2,23 @@ package com.codegym.model;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 
 public class ProductForm {
     private Long id;
 
+    @NotEmpty(message = "Khong duoc de trong")
+    @Size(min = 5, max = 20, message = "Ten san pham tu 5 -> 20 ky tu")
     private String name;
 
+    @NotNull
     private double price;
 
+    @NotBlank
     private String description;
 
     private MultipartFile image;

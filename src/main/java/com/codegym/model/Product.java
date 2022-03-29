@@ -1,6 +1,8 @@
 package com.codegym.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 
 @Entity
@@ -10,10 +12,14 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "Varchar(50)", nullable = false)
+    @NotEmpty
     private String name;
 
+    @NotNull
     private double price;
 
+    @NotNull
     private String description;
 
     private String image;

@@ -1,5 +1,6 @@
 package com.codegym.controller;
 
+import com.codegym.exception.NotFoundException;
 import com.codegym.model.Category;
 import com.codegym.model.Product;
 import com.codegym.model.ProductForm;
@@ -12,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -31,6 +34,16 @@ public class ProductController {
     @Value("${file-upload}")
     private String uploadPath;
 
+    @ModelAttribute("categories")
+    public Iterable<Category> categories() {
+        return categoryService.findAll();
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ModelAndView notFoundPage() {
+        return new ModelAndView("/error-404");
+    }
+
     @GetMapping("/products/list")
     public ModelAndView showListProduct(@RequestParam (name = "q") Optional<String> q, @PageableDefault (value = 5) Pageable pageable){
         ModelAndView modelAndView = new ModelAndView("/product/list");
@@ -39,23 +52,26 @@ public class ProductController {
             modelAndView.addObject("q", q.get());
             products = productService.findProductByNameContaining(q.get(), pageable);
         }
-        Iterable<Category> categories = categoryService.findAll();
+//        Iterable<Category> categories = categoryService.findAll();
         modelAndView.addObject("products", products);
-        modelAndView.addObject("categories", categories);
+//        modelAndView.addObject("categories", categories);
         return modelAndView;
     }
 
     @GetMapping("/products/create")
     public ModelAndView showCreateForm() {
         ModelAndView modelAndView = new ModelAndView("/product/create");
-        Iterable<Category> categories = categoryService.findAll();
-        modelAndView.addObject("categories", categories);
+//        Iterable<Category> categories = categoryService.findAll();
+//        modelAndView.addObject("categories", categories);
         modelAndView.addObject("product", new ProductForm());
         return modelAndView;
     }
 
     @PostMapping("/products/create")
-    public ModelAndView createProduct(@ModelAttribute ProductForm productForm){
+    public ModelAndView createProduct(@Valid @ModelAttribute("product") ProductForm productForm, BindingResult bindingResult){
+        if (bindingResult.hasFieldErrors()){ //Trả về dữ liệu true nếu dữ liệu người dùng nhập vào không hợp lệ
+            return new ModelAndView("/product/create");
+        }
         MultipartFile multipartFile = productForm.getImage();
         String fileName = multipartFile.getOriginalFilename();
         long currentTime = System.currentTimeMillis();
@@ -71,23 +87,25 @@ public class ProductController {
     }
 
     @GetMapping("/products/edit/{id}")
-    public ModelAndView showEditForm(@PathVariable Long id) {
+    public ModelAndView showEditForm(@PathVariable Long id) throws NotFoundException {
         Optional<Product> productOptional = productService.findById(id);
         if (!productOptional.isPresent()) {
-            return new ModelAndView("/error-404");
+//            return new ModelAndView("/error-404");
+            throw new NotFoundException();
         }
         ModelAndView modelAndView = new ModelAndView("/product/edit");
         modelAndView.addObject("product", productOptional.get());
-        Iterable<Category> categories = categoryService.findAll();
-        modelAndView.addObject("categories", categories);
+//        Iterable<Category> categories = categoryService.findAll();
+//        modelAndView.addObject("categories", categories);
         return modelAndView;
     }
 
     @PostMapping("/products/edit/{id}")
-    public ModelAndView editProduct(@PathVariable Long id, @ModelAttribute ProductForm productForm){
+    public ModelAndView editProduct(@PathVariable Long id, @ModelAttribute ProductForm productForm) throws NotFoundException {
         Optional<Product> productOptional = productService.findById(id);
         if (!productOptional.isPresent()) {
-            return new ModelAndView("/error-404");
+//            return new ModelAndView("/error-404");
+            throw new NotFoundException();
         }
         Product oldProduct = productOptional.get();
         MultipartFile multipartFile = productForm.getImage();
@@ -111,38 +129,41 @@ public class ProductController {
     }
 
     @GetMapping("/products/delete/{id}")
-    public ModelAndView showDeleteForm(@PathVariable Long id) {
+    public ModelAndView showDeleteForm(@PathVariable Long id) throws NotFoundException {
         Optional<Product> productOptional = productService.findById(id);
         if (!productOptional.isPresent()) {
-            return new ModelAndView("/error-404");
+//            return new ModelAndView("/error-404");
+            throw new NotFoundException();
         }
         ModelAndView modelAndView = new ModelAndView("/product/delete");
         modelAndView.addObject("product", productOptional.get());
-        Iterable<Category> categories = categoryService.findAll();
-        modelAndView.addObject("categories", categories);
+//        Iterable<Category> categories = categoryService.findAll();
+//        modelAndView.addObject("categories", categories);
         return modelAndView;
     }
 
     @PostMapping("/products/delete/{id}")
-    public ModelAndView deleteProduct(@PathVariable Long id) {
+    public ModelAndView deleteProduct(@PathVariable Long id) throws NotFoundException {
         Optional<Product> productOptional = productService.findById(id);
         if (!productOptional.isPresent()) {
-            return new ModelAndView("/error-404");
+//            return new ModelAndView("/error-404");
+            throw new NotFoundException();
         }
         productService.remove(id);
         return new ModelAndView("redirect:/products/list");
     }
 
     @GetMapping("/products/{id}")
-    public ModelAndView showDetailProduct(@PathVariable Long id) {
+    public ModelAndView showDetailProduct(@PathVariable Long id) throws NotFoundException {
         Optional<Product> productOptional = productService.findById(id);
         if (!productOptional.isPresent()) {
-            return new ModelAndView("/error-404");
+//            return new ModelAndView("/error-404");
+            throw new NotFoundException();
         }
         ModelAndView modelAndView = new ModelAndView("/product/detail");
         modelAndView.addObject("product", productOptional.get());
-        Iterable<Category> categories = categoryService.findAll();
-        modelAndView.addObject("categories", categories);
+//        Iterable<Category> categories = categoryService.findAll();
+//        modelAndView.addObject("categories", categories);
         return modelAndView;
     }
 

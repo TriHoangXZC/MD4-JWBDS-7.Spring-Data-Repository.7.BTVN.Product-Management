@@ -12,14 +12,17 @@
         <tr>
             <td>Name</td>
             <td><input type="text" th:field="*{name}"></td>
+            <td><p style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p></td>
         </tr>
         <tr>
             <td>Price</td>
             <td><input type="text" th:field="*{price}"></td>
+            <td><p style="color:red" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p></td>
         </tr>
         <tr>
             <td>Description</td>
             <td><input type="text" th:field="*{description}"></td>
+            <td><p style="color:red" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p></td>
         </tr>
         <tr>
             <td>Image</td>
